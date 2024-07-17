@@ -2,21 +2,18 @@ const puppeteer = require("puppeteer");
 const { KnownDevices } = require("puppeteer");
 const iPhone = KnownDevices["iPhone 13"];
 
-const PLAYER_ID = 665138769;
+const generatePlayerCSV = async (link, page) => {
+	const targetURL = link + "characters/?sort=name";
 
-const generatePlayerCSV = async (id) => {
-	const targetURL = "https://swgoh.gg/p/" + id + "/characters/?sort=name";
+	// // Launch the headless browser
+	// const browser = await puppeteer.launch();
 
-	// Launch the headless browser
-	const browser = await puppeteer.launch();
-
-	// Create a page
-	const page = await browser.newPage();
-	await page.emulate(iPhone);
+	// // Create a page
+	// const page = await browser.newPage();
+	// await page.emulate(iPhone);
 
 	// Go to your site
 	await page.goto(targetURL);
-
 	console.log("Page loaded");
 
 	const playerName = await page.$eval(".m-0", (e) => {
@@ -72,16 +69,22 @@ const generatePlayerCSV = async (id) => {
 						?.getElementsByTagName("text")[0].textContent
 				) || 0;
 
-			return [name, level, gear, relic, zeta];
+			const omnicron =
+				parseInt(
+					portrait
+						?.getElementsByClassName("character-portrait__omicron")[0]
+						?.getElementsByTagName("svg")[0]
+						?.getElementsByTagName("text")[0].textContent
+				) || 0;
+
+			return [name, level, gear, relic, zeta, omnicron];
 		});
 	});
 	console.log(data);
 
-	// Close browser
-	await browser.close();
-
 	let csvContent =
-		"name,level,gear,relic,zeta,\n" + data.map((e) => e.join(",")).join("\n");
+		"name,level,gear,relic,zeta,omnicron,\n" +
+		data.map((e) => e.join(",")).join("\n");
 
 	// Define the file path where you want to save the CSV
 	const filePath = playerName + ".csv";
@@ -97,7 +100,50 @@ const generatePlayerCSV = async (id) => {
 	});
 };
 
+const generateGuildCSV = async () => {
+	const targetURL = "https://swgoh.gg/g/4snJvbTlT6KgeMo-B-8ETg/";
+
+	// Launch the headless browser
+	const browser = await puppeteer.launch();
+
+	// Create a page
+	const page = await browser.newPage();
+	await page.emulate(iPhone);
+
+	// Go to your site
+	await page.goto(targetURL);
+
+	const players = await page.$eval(".data-table", (table) => {
+		const players = table
+			.getElementsByTagName("tbody")[0]
+			.getElementsByTagName("tr");
+
+		return Array.from(players).map((player) => {
+			return player.getElementsByTagName("td")[0].getElementsByTagName("a")[0]
+				.href;
+		});
+
+		return players[1].getElementsByTagName("td")[0].getElementsByTagName("a")[0]
+			.href;
+	});
+
+	console.log(players);
+	console.log(players.length);
+
+	for (i = 0; i < players.length; i++) {
+		await generatePlayerCSV(players[i], page);
+	}
+
+	// await players.forEach((link) => {
+	// 	generatePlayerCSV(link, page);
+	// });
+
+	// Close browser
+	await browser.close();
+};
+
 // download user id from guild
 // download characters for every player in guild
 
-generatePlayerCSV(PLAYER_ID);
+// generatePlayerCSV(PLAYER_ID);
+generateGuildCSV();
