@@ -84,7 +84,7 @@ const generatePlayerCSV = async (link, page) => {
 
 	let csvContent =
 		"name,level,gear,relic,zeta,omnicron,\n" +
-		data.map((e) => e.join(",")).join("\n");
+		data.map((e) => e.join(";")).join("\n");
 
 	// Define the file path where you want to save the CSV
 	const filePath = playerName + ".csv";
