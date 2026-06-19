@@ -1,5 +1,9 @@
-You need to have installed node and npm.
-Install packages by typing npm install.
-Launch by typing "node index.js".
-In index.js, change PLAYER_ID to get that player's characters.
-Program will create csv file with player's nickname.
+# Scraper swgoh.gg
+
+- [Download](https://github.com/Makolin0/swgohScraping/archive/refs/heads/main.zip)/clone this repository
+- Have installed node v24 (<https://nodejs.org/en/download>)
+- Open downlaoded directory in terminal
+- Install dependencies with `npm install`
+- Run script with `node script.js <player|guild> <id>`
+  - `<player|guild>` - specify if you're downloading single player's data or whole guilds
+  - `<id>` - id of a guild/player you want do download, found in URL.
